@@ -5,21 +5,29 @@ import {
 } from "./processCheck";
 import { closeService } from "./close";
 import { readConfigFile } from ".";
+import {isDevMode} from "../constants";
 
 export async function executeCodeCommand(args: string[] = []) {
+  console.log(" ====>",args);
   // Set environment variables
   const config = await readConfigFile();
-  const env = {
+
+
+
+  const common_env = {
     ...process.env,
-    ANTHROPIC_AUTH_TOKEN: "test",
-    ANTHROPIC_BASE_URL: `http://127.0.0.1:${config.PORT || 3456}`,
+    ANTHROPIC_BASE_URL: `http://127.0.0.1:${config.PORT || isDevMode() ? 3457 : 3456 }`,
     API_TIMEOUT_MS: "600000",
   };
 
-  if (config?.APIKEY) {
-    env.ANTHROPIC_API_KEY = config.APIKEY;
-    delete env.ANTHROPIC_AUTH_TOKEN;
-  }
+  const other_env = config?.APIKEY ? { ANTHROPIC_API_KEY: config.APIKEY } : {};
+
+
+
+  const env = {
+    ...common_env,
+    ...other_env,
+  };
 
   // Increment reference count when command starts
   incrementReferenceCount();

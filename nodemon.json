@@ -1,0 +1,12 @@
+{
+    "watch": [
+        "src/**"
+    ],
+    "ext": "ts",
+    "ignore": [
+        "src/**/*.spec.ts"
+    ],
+    "exec": "npm run build && NODE_ENV=development node scripts/dev-start.js",
+    "delay": "1000",
+    "signal": "SIGTERM"
+}

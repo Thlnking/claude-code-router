@@ -11,7 +11,7 @@ import {
   isServiceRunning,
   savePid,
 } from "./utils/processCheck";
-import { CONFIG_FILE } from "./constants";
+import { getConfigFile, isDevMode } from "./constants";
 
 async function initializeClaudeConfig() {
   const homeDir = homedir();
@@ -44,6 +44,7 @@ async function run(options: RunOptions = {}) {
     return;
   }
 
+
   await initializeClaudeConfig();
   await initDir();
   const config = await initConfig();
@@ -56,7 +57,7 @@ async function run(options: RunOptions = {}) {
     );
   }
 
-  const port = config.PORT || 3456;
+  const port = config.PORT ||  isDevMode() ? 3457 : 3456;
 
   // Save the PID of the background process
   savePid(process.pid);
@@ -73,28 +74,33 @@ async function run(options: RunOptions = {}) {
     cleanupPidFile();
     process.exit(0);
   });
-  console.log(HOST)
+  
+  if (isDevMode()) {
+    console.log(`🔧 Dev mode: Service starting on ${HOST}:${port}`);
+  } else {
+    console.log(`🚀 Service starting on ${HOST}:${port}`);
+  }
 
   // Use port from environment variable if set (for background process)
   const servicePort = process.env.SERVICE_PORT
     ? parseInt(process.env.SERVICE_PORT)
     : port;
   const server = createServer({
-    jsonPath: CONFIG_FILE,
+    jsonPath: getConfigFile(),
     initialConfig: {
       // ...config,
       providers: config.Providers || config.providers,
       HOST: HOST,
       PORT: servicePort,
       LOG_FILE: join(
-        homedir(),
+        isDevMode() ? process.cwd() : homedir(),
         ".claude-code-router",
         "claude-code-router.log"
       ),
     },
   });
   server.addHook("preHandler", apiKeyAuth(config));
-  server.addHook("preHandler", async (req, reply) =>
+  server.addHook("preHandler", async (req:any, reply:any) =>
     router(req, reply, config)
   );
   server.start();

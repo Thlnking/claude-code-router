@@ -1,0 +1,19 @@
+{
+    "HOST": "127.0.0.1",
+    "PORT": 3457,
+    "LOG": true,
+    "Providers": [
+        {
+            "name": "openai",
+            "api_base_url": "https://api.openai.com/v1",
+            "api_key": "your-openai-api-key-here",
+            "models": [
+                "gpt-4",
+                "gpt-3.5-turbo"
+            ]
+        }
+    ],
+    "Router": {
+        "default": "openai,gpt-4"
+    }
+}

@@ -8,12 +8,12 @@
 
 ## ✨ Features
 
--   **Model Routing**: Route requests to different models based on your needs (e.g., background tasks, thinking, long context).
--   **Multi-Provider Support**: Supports various model providers like OpenRouter, DeepSeek, Ollama, Gemini, Volcengine, and SiliconFlow.
--   **Request/Response Transformation**: Customize requests and responses for different providers using transformers.
--   **Dynamic Model Switching**: Switch models on-the-fly within Claude Code using the `/model` command.
--   **GitHub Actions Integration**: Trigger Claude Code tasks in your GitHub workflows.
--   **Plugin System**: Extend functionality with custom transformers.
+- **Model Routing**: Route requests to different models based on your needs (e.g., background tasks, thinking, long context).
+- **Multi-Provider Support**: Supports various model providers like OpenRouter, DeepSeek, Ollama, Gemini, Volcengine, and SiliconFlow.
+- **Request/Response Transformation**: Customize requests and responses for different providers using transformers.
+- **Dynamic Model Switching**: Switch models on-the-fly within Claude Code using the `/model` command.
+- **GitHub Actions Integration**: Trigger Claude Code tasks in your GitHub workflows.
+- **Plugin System**: Extend functionality with custom transformers.
 
 ## 🚀 Getting Started
 
@@ -36,6 +36,7 @@ npm install -g @musistudio/claude-code-router
 Create and configure your `~/.claude-code-router/config.json` file. For more details, you can refer to `config.example.json`.
 
 The `config.json` file has several key sections:
+
 - **`PROXY_URL`** (optional): You can set a proxy for API requests, for example: `"PROXY_URL": "http://127.0.0.1:7890"`.
 - **`LOG`** (optional): You can enable logging by setting it to `true`. The log file will be located at `$HOME/.claude-code-router.log`.
 - **`APIKEY`** (optional): You can set a secret key to authenticate requests. When set, clients must provide this key in the `Authorization` header (e.g., `Bearer your-secret-key`) or the `x-api-key` header. Example: `"APIKEY": "your-secret-key"`.
@@ -48,47 +49,46 @@ Here is a comprehensive example:
 
 ```json
 {
-  "APIKEY": "your-secret-key",
-  "PROXY_URL": "http://127.0.0.1:7890",
-  "LOG": true,
-  "Providers": [
-    {
-      "name": "openrouter",
-      "api_base_url": "https://openrouter.ai/api/v1/chat/completions",
-      "api_key": "sk-xxx",
-      "models": [
-        "google/gemini-2.5-pro-preview",
-        "anthropic/claude-sonnet-4",
-        "anthropic/claude-3.5-sonnet"
-      ],
-      "transformer": { "use": ["openrouter"] }
-    },
-    {
-      "name": "deepseek",
-      "api_base_url": "https://api.deepseek.com/chat/completions",
-      "api_key": "sk-xxx",
-      "models": ["deepseek-chat", "deepseek-reasoner"],
-      "transformer": {
-        "use": ["deepseek"],
-        "deepseek-chat": { "use": ["tooluse"] }
-      }
-    },
-    {
-      "name": "ollama",
-      "api_base_url": "http://localhost:11434/v1/chat/completions",
-      "api_key": "ollama",
-      "models": ["qwen2.5-coder:latest"]
-    }
-  ],
-  "Router": {
-    "default": "deepseek,deepseek-chat",
-    "background": "ollama,qwen2.5-coder:latest",
-    "think": "deepseek,deepseek-reasoner",
-    "longContext": "openrouter,google/gemini-2.5-pro-preview"
-  }
+	"APIKEY": "your-secret-key",
+	"PROXY_URL": "http://127.0.0.1:7890",
+	"LOG": true,
+	"Providers": [
+		{
+			"name": "openrouter",
+			"api_base_url": "https://openrouter.ai/api/v1/chat/completions",
+			"api_key": "sk-xxx",
+			"models": [
+				"google/gemini-2.5-pro-preview",
+				"anthropic/claude-sonnet-4",
+				"anthropic/claude-3.5-sonnet"
+			],
+			"transformer": { "use": ["openrouter"] }
+		},
+		{
+			"name": "deepseek",
+			"api_base_url": "https://api.deepseek.com/chat/completions",
+			"api_key": "sk-xxx",
+			"models": ["deepseek-chat", "deepseek-reasoner"],
+			"transformer": {
+				"use": ["deepseek"],
+				"deepseek-chat": { "use": ["tooluse"] }
+			}
+		},
+		{
+			"name": "ollama",
+			"api_base_url": "http://localhost:11434/v1/chat/completions",
+			"api_key": "ollama",
+			"models": ["qwen2.5-coder:latest"]
+		}
+	],
+	"Router": {
+		"default": "deepseek,deepseek-chat",
+		"background": "ollama,qwen2.5-coder:latest",
+		"think": "deepseek,deepseek-reasoner",
+		"longContext": "openrouter,google/gemini-2.5-pro-preview"
+	}
 }
 ```
-
 
 ### 3. Running Claude Code with the Router
 
@@ -98,77 +98,101 @@ Start Claude Code using the router:
 ccr code
 ```
 
+#### Development Mode
+
+For development and testing, you can run the service in development mode:
+
+```shell
+npm run dev
+```
+
+In development mode:
+
+- Configuration files are stored in the project directory (`.claude-code-router/`) instead of the user's home directory
+- The service runs with hot reload enabled (automatically restarts when source files change)
+- **Port isolation**: Uses port 3457 by default to avoid conflicts with production mode (3456)
+- **Smart service management**: Automatically stops previous service before restarting
+- Development mode is indicated in the status output
+- You can use `config.dev.example.json` as a starting point for your development configuration
+
+To check if the service is running in development mode:
+
+```shell
+ccr status
+```
+
 #### Providers
 
 The `Providers` array is where you define the different model providers you want to use. Each provider object requires:
 
--   `name`: A unique name for the provider.
--   `api_base_url`: The full API endpoint for chat completions.
--   `api_key`: Your API key for the provider.
--   `models`: A list of model names available from this provider.
--   `transformer` (optional): Specifies transformers to process requests and responses.
+- `name`: A unique name for the provider.
+- `api_base_url`: The full API endpoint for chat completions.
+- `api_key`: Your API key for the provider.
+- `models`: A list of model names available from this provider.
+- `transformer` (optional): Specifies transformers to process requests and responses.
 
 #### Transformers
 
 Transformers allow you to modify the request and response payloads to ensure compatibility with different provider APIs.
 
--   **Global Transformer**: Apply a transformer to all models from a provider. In this example, the `openrouter` transformer is applied to all models under the `openrouter` provider.
-    ```json
-     {
-       "name": "openrouter",
-       "api_base_url": "https://openrouter.ai/api/v1/chat/completions",
-       "api_key": "sk-xxx",
-       "models": [
-         "google/gemini-2.5-pro-preview",
-         "anthropic/claude-sonnet-4",
-         "anthropic/claude-3.5-sonnet"
-       ],
-       "transformer": { "use": ["openrouter"] }
-     }
-    ```
--   **Model-Specific Transformer**: Apply a transformer to a specific model. In this example, the `deepseek` transformer is applied to all models, and an additional `tooluse` transformer is applied only to the `deepseek-chat` model.
-    ```json
-     {
-       "name": "deepseek",
-       "api_base_url": "https://api.deepseek.com/chat/completions",
-       "api_key": "sk-xxx",
-       "models": ["deepseek-chat", "deepseek-reasoner"],
-       "transformer": {
-         "use": ["deepseek"],
-         "deepseek-chat": { "use": ["tooluse"] }
-       }
-     }
-    ```
+- **Global Transformer**: Apply a transformer to all models from a provider. In this example, the `openrouter` transformer is applied to all models under the `openrouter` provider.
+  ```json
+  {
+  	"name": "openrouter",
+  	"api_base_url": "https://openrouter.ai/api/v1/chat/completions",
+  	"api_key": "sk-xxx",
+  	"models": [
+  		"google/gemini-2.5-pro-preview",
+  		"anthropic/claude-sonnet-4",
+  		"anthropic/claude-3.5-sonnet"
+  	],
+  	"transformer": { "use": ["openrouter"] }
+  }
+  ```
+- **Model-Specific Transformer**: Apply a transformer to a specific model. In this example, the `deepseek` transformer is applied to all models, and an additional `tooluse` transformer is applied only to the `deepseek-chat` model.
 
--   **Passing Options to a Transformer**: Some transformers, like `maxtoken`, accept options. To pass options, use a nested array where the first element is the transformer name and the second is an options object.
-    ```json
-    {
-      "name": "siliconflow",
-      "api_base_url": "https://api.siliconflow.cn/v1/chat/completions",
-      "api_key": "sk-xxx",
-      "models": ["moonshotai/Kimi-K2-Instruct"],
-      "transformer": {
-        "use": [
-          [
-            "maxtoken",
-            {
-              "max_tokens": 16384
-            }
-          ]
-        ]
-      }
-    }
-    ```
+  ```json
+  {
+  	"name": "deepseek",
+  	"api_base_url": "https://api.deepseek.com/chat/completions",
+  	"api_key": "sk-xxx",
+  	"models": ["deepseek-chat", "deepseek-reasoner"],
+  	"transformer": {
+  		"use": ["deepseek"],
+  		"deepseek-chat": { "use": ["tooluse"] }
+  	}
+  }
+  ```
+
+- **Passing Options to a Transformer**: Some transformers, like `maxtoken`, accept options. To pass options, use a nested array where the first element is the transformer name and the second is an options object.
+  ```json
+  {
+  	"name": "siliconflow",
+  	"api_base_url": "https://api.siliconflow.cn/v1/chat/completions",
+  	"api_key": "sk-xxx",
+  	"models": ["moonshotai/Kimi-K2-Instruct"],
+  	"transformer": {
+  		"use": [
+  			[
+  				"maxtoken",
+  				{
+  					"max_tokens": 16384
+  				}
+  			]
+  		]
+  	}
+  }
+  ```
 
 **Available Built-in Transformers:**
 
--   `deepseek`: Adapts requests/responses for DeepSeek API.
--   `gemini`: Adapts requests/responses for Gemini API.
--   `openrouter`: Adapts requests/responses for OpenRouter API.
--   `groq`: Adapts requests/responses for groq API.
--   `maxtoken`: Sets a specific `max_tokens` value.
--   `tooluse`: Optimizes tool usage for certain models via `tool_choice`.
--   `gemini-cli` (experimental): Unofficial support for Gemini via Gemini CLI [gemini-cli.js](https://gist.github.com/musistudio/1c13a65f35916a7ab690649d3df8d1cd).
+- `deepseek`: Adapts requests/responses for DeepSeek API.
+- `gemini`: Adapts requests/responses for Gemini API.
+- `openrouter`: Adapts requests/responses for OpenRouter API.
+- `groq`: Adapts requests/responses for groq API.
+- `maxtoken`: Sets a specific `max_tokens` value.
+- `tooluse`: Optimizes tool usage for certain models via `tool_choice`.
+- `gemini-cli` (experimental): Unofficial support for Gemini via Gemini CLI [gemini-cli.js](https://gist.github.com/musistudio/1c13a65f35916a7ab690649d3df8d1cd).
 
 **Custom Transformers:**
 
@@ -176,14 +200,14 @@ You can also create your own transformers and load them via the `transformers` f
 
 ```json
 {
-  "transformers": [
-      {
-        "path": "$HOME/.claude-code-router/plugins/gemini-cli.js",
-        "options": {
-          "project": "xxx"
-        }
-      }
-  ]
+	"transformers": [
+		{
+			"path": "$HOME/.claude-code-router/plugins/gemini-cli.js",
+			"options": {
+				"project": "xxx"
+			}
+		}
+	]
 }
 ```
 
@@ -191,15 +215,14 @@ You can also create your own transformers and load them via the `transformers` f
 
 The `Router` object defines which model to use for different scenarios:
 
--   `default`: The default model for general tasks.
--   `background`: A model for background tasks. This can be a smaller, local model to save costs.
--   `think`: A model for reasoning-heavy tasks, like Plan Mode.
--   `longContext`: A model for handling long contexts (e.g., > 60K tokens).
+- `default`: The default model for general tasks.
+- `background`: A model for background tasks. This can be a smaller, local model to save costs.
+- `think`: A model for reasoning-heavy tasks, like Plan Mode.
+- `longContext`: A model for handling long contexts (e.g., > 60K tokens).
 
 You can also switch models dynamically in Claude Code with the `/model` command:
 `/model provider_name,model_name`
 Example: `/model openrouter,anthropic/claude-3.5-sonnet`
-
 
 ## 🤖 GitHub Actions
 
@@ -262,8 +285,8 @@ This setup allows for interesting automations, like running tasks during off-pea
 
 ## 📝 Further Reading
 
--   [Project Motivation and How It Works](blog/en/project-motivation-and-how-it-works.md)
--   [Maybe We Can Do More with the Router](blog/en/maybe-we-can-do-more-with-the-route.md)
+- [Project Motivation and How It Works](blog/en/project-motivation-and-how-it-works.md)
+- [Maybe We Can Do More with the Router](blog/en/maybe-we-can-do-more-with-the-route.md)
 
 ## ❤️ Support & Sponsoring
 
@@ -285,37 +308,36 @@ A huge thank you to all our sponsors for their generous support!
 - @Simon Leischnig
 - [@duanshuaimin](https://github.com/duanshuaimin)
 - [@vrgitadmin](https://github.com/vrgitadmin)
-- @*o
+- @\*o
 - [@ceilwoo](https://github.com/ceilwoo)
-- @*说
-- @*更
-- @K*g
-- @R*R
+- @\*说
+- @\*更
+- @K\*g
+- @R\*R
 - [@bobleer](https://github.com/bobleer)
-- @*苗
-- @*划
+- @\*苗
+- @\*划
 - [@Clarence-pan](https://github.com/Clarence-pan)
 - [@carter003](https://github.com/carter003)
-- @S*r
-- @*晖
-- @*敏
-- @Z*z
-- @*然
+- @S\*r
+- @\*晖
+- @\*敏
+- @Z\*z
+- @\*然
 - [@cluic](https://github.com/cluic)
-- @*苗
+- @\*苗
 - [@PromptExpert](https://github.com/PromptExpert)
-- @*应
+- @\*应
 - [@yusnake](https://github.com/yusnake)
-- @*飞
-- @董*
-<<<<<<< HEAD
-- @*琢
-- @*成
-- @**磊
-=======
-- *汀
-- *涯
-- *:-）
->>>>>>> 2fc79dcf377ade7c4fc8883c94a6779fce830a5a
+- @\*飞
+- @董\*
+  <<<<<<< HEAD
+- @\*琢
+- @\*成
+- # @\*\*磊
+- \*汀
+- \*涯
+- \*:-）
+  > > > > > > > 2fc79dcf377ade7c4fc8883c94a6779fce830a5a
 
 (If your name is masked, please contact me via my homepage email to update it with your GitHub username.)

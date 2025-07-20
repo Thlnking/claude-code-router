@@ -1,10 +1,11 @@
 import fs from "node:fs/promises";
 import readline from "node:readline";
 import {
-  CONFIG_FILE,
+  getConfigFile,
+  getHomeDir,
+  getPluginsDir,
   DEFAULT_CONFIG,
-  HOME_DIR,
-  PLUGINS_DIR,
+  isDevMode,
 } from "../constants";
 
 const ensureDir = async (dir_path: string) => {
@@ -16,8 +17,15 @@ const ensureDir = async (dir_path: string) => {
 };
 
 export const initDir = async () => {
-  await ensureDir(HOME_DIR);
-  await ensureDir(PLUGINS_DIR);
+  const homeDir = getHomeDir();
+  const pluginsDir = getPluginsDir();
+  
+  await ensureDir(homeDir);
+  await ensureDir(pluginsDir);
+  
+  if (isDevMode()) {
+    console.log(`🔧 Dev mode: Using project directory: ${homeDir}`);
+  }
 };
 
 const createReadline = () => {
@@ -43,8 +51,9 @@ const confirm = async (query: string): Promise<boolean> => {
 };
 
 export const readConfigFile = async () => {
+  const configFile = getConfigFile();
   try {
-    const config = await fs.readFile(CONFIG_FILE, "utf-8");
+    const config = await fs.readFile(configFile, "utf-8");
     return JSON.parse(config);
   } catch {
     const name = await question("Enter Provider Name: ");
@@ -70,8 +79,10 @@ export const readConfigFile = async () => {
 };
 
 export const writeConfigFile = async (config: any) => {
-  await ensureDir(HOME_DIR);
-  await fs.writeFile(CONFIG_FILE, JSON.stringify(config, null, 2));
+  const homeDir = getHomeDir();
+  const configFile = getConfigFile();
+  await ensureDir(homeDir);
+  await fs.writeFile(configFile, JSON.stringify(config, null, 2));
 };
 
 export const initConfig = async () => {
